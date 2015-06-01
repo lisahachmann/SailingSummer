@@ -1,0 +1,88 @@
+import wiringpi2 as wiringpi
+import time
+import os
+import sys
+sys.path.append('/home/pi/Sailing_Team/Compass')
+import compass
+#from threading import RLock
+
+pin_base = 65
+i2c_addr = 0x20
+
+wiringpi.wiringPiSetup()
+wiringpi.mcp23017Setup(pin_base, i2c_addr)
+
+for i in range(65, 77):
+    wiringpi.pinMode(i, 0)
+
+key_val = ['* key', '7 key', '4 key', '1 key', '0 key', '8 key', '5 key', '2 key', '3 key', '6 key', '9 key', 'Hash key']
+
+
+def keypad_entry():
+    #lock = RLock()
+    seq = []
+    set_set_bearing = False
+    os.system('pico2wave -w /home/pi/Sailing_Team/Keypad/off_port_20.wav "Off port 20"')
+    os.system('pico2wave -w /home/pi/Sailing_Team/Keypad/off_starboard_20.wav "Off starboard 20"')
+    while True:
+        key_presses = []
+	bearing_data = compass.find_bearing()
+	with open('bearing.txt', 'w') as f:
+	    f.write(bearing_data[0])
+	#lock.acquire()
+        for i in range(65, 77):
+	    dR_val = wiringpi.digitalRead(i)
+	    key_presses.append(dR_val)
+
+        for j in range(len(key_presses)):
+	    if key_presses[j]:
+	        seq.append(key_val[j])
+	        time.sleep(0.2)
+        
+	#print seq
+
+        for key in range(len(seq)):
+	    if seq[key] == '1 key':
+		os.system('pico2wave -w /home/pi/Sailing_Team/Keypad/bearing.wav "$(cat /home/pi/Sailing_Team/Keypad/bearing.txt)"')
+		os.system("aplay /home/pi/Sailing_Team/Keypad/bearing.wav")
+		set_bearing = bearing_data[1]
+		print set_bearing
+		set_set_bearing = True
+		
+		del seq[key]
+	    elif seq[key] == '2 key':
+	        os.system('pico2wave -w /home/pi/Sailing_Team/Keypad/bearing.wav "$(cat /home/pi/Sailing_Team/Keypad/bearing.txt)"')
+		os.system("aplay /home/pi/Sailing_Team/Keypad/bearing.wav")
+	        del seq[key]
+	
+	if set_set_bearing:
+	    t0 = time.time()
+	    print time.time() - t0
+	    #print bearing_data[1]
+	    if set_bearing > 340 and set_bearing + 20 > 0 and time.time() - t0 > 15:
+		os.system("aplay /home/pi/Sailing_Team/Keypad/off_port_20.wav")
+		t0 = time.time()
+	    if set_bearing < 20 and set_bearing - 20 < 360 and time.time() - t0 > 15:
+		os.system("aplay /home/pi/Sailing_Team/Keypad/off_starboard_20.wav")
+		t0 = time.time()
+	    if set_bearing - 20 > bearing_data[1] and time.time() - t0 > 15:
+		os.system("aplay /home/pi/Sailing_Team/Keypad/off_starboard_20.wav")
+		t0 = time.time()
+	    if set_bearing + 20 < bearing_data[1] and time.time() - t0 > 15:
+		os.system("aplay /home/pi/Sailing_Team/Keypad/off_port_20.wav")
+		t0 = time.time()
+	else:
+	    pass
+	#if val == 0 and bearing_data[1] - 20 < set_bearing:
+	    #print "Off 20 starboard"
+	#elif val == 0 and bearing_data[1] + 20 > set_bearing:
+	    #print "Off 20 port"
+	    #elif seq[key] == '* key':
+		#os.system("sudo killall aplay")
+		#del seq[key]
+		#seq = []
+	
+	    #elif seq[key] == '1 key':
+	#lock.release()
+
+keypad_entry()
