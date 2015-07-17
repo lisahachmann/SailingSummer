@@ -1,0 +1,180 @@
+Help on module RPi.GPIO in RPi:
+
+NAME
+    RPi.GPIO - GPIO functionality of a Raspberry Pi using Python
+
+FILE
+    /usr/lib/python2.7/dist-packages/RPi/GPIO.so
+
+CLASSES
+    __builtin__.object
+        PWM
+    
+    class PWM(__builtin__.object)
+     |  Pulse Width Modulation class
+     |  
+     |  Methods defined here:
+     |  
+     |  ChangeDutyCycle(...)
+     |      Change the duty cycle
+     |      dutycycle - between 0.0 and 100.0
+     |  
+     |  ChangeFrequency(...)
+     |      Change the frequency
+     |      frequency - frequency in Hz (freq > 1.0)
+     |  
+     |  __init__(...)
+     |      x.__init__(...) initializes x; see help(type(x)) for signature
+     |  
+     |  start(...)
+     |      Start software PWM
+     |      dutycycle - the duty cycle (0.0 to 100.0)
+     |  
+     |  stop(...)
+     |      Stop software PWM
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |  
+     |  __new__ = <built-in method __new__ of type object>
+     |      T.__new__(S, ...) -> a new object with type S, a subtype of T
+
+FUNCTIONS
+    add_event_callback(...)
+        Add a callback for an event already defined using add_event_detect()
+        channel      - either board pin number or BCM number depending on which mode is set.
+      callback     - a callback function
+    
+    add_event_detect(...)
+        Enable edge detection events for a particular GPIO channel.
+        channel      - either board pin number or BCM number depending on which mode is set.
+        edge         - RISING, FALLING or BOTH
+        [callback]   - A callback function for the event (optional)
+        [bouncetime] - Switch bounce timeout in ms for callback
+    
+    cleanup(...)
+        Clean up by resetting all GPIO channels that have been used by this program to INPUT with no pullup/pulldown and no event detection
+        [channel] - individual channel or list/tuple of channels to clean up.  Default - clean every channel that has been used.
+    
+    event_detected(...)
+        Returns True if an edge has occured on a given GPIO.  You need to enable edge detection using add_event_detect() first.
+        channel - either board pin number or BCM number depending on which mode is set.
+    
+    getmode(...)
+        Get numbering mode used for channel numbers.
+        Returns BOARD, BCM or UNKNOWN
+    
+    gpio_function(...)
+        Return the current GPIO function (IN, OUT, PWM, SERIAL, I2C, SPI)
+        channel - either board pin number or BCM number depending on which mode is set.
+    
+    input(...)
+        Input from a GPIO channel.  Returns HIGH=1=True or LOW=0=False
+        channel - either board pin number or BCM number depending on which mode is set.
+    
+    output(...)
+        Output to a GPIO channel or list of channels
+        channel - either board pin number or BCM number depending on which mode is set.
+        value   - 0/1 or False/True or LOW/HIGH
+    
+    remove_event_detect(...)
+      callback     - a callback function
+    
+    add_event_detect(...)
+        Enable edge detection events for a particular GPIO channel.
+        channel      - either board pin number or BCM number depending on which mode is set.
+        edge         - RISING, FALLING or BOTH
+        [callback]   - A callback function for the event (optional)
+        [bouncetime] - Switch bounce timeout in ms for callback
+    
+    cleanup(...)
+        Clean up by resetting all GPIO channels that have been used by this program to INPUT with no pullup/pulldown and no event detection
+        [channel] - individual channel or list/tuple of channels to clean up.  Default - clean every channel that has been used.
+    
+    event_detected(...)
+        Returns True if an edge has occured on a given GPIO.  You need to enable edge detection using add_event_detect() first.
+        channel - either board pin number or BCM number depending on which mode is set.
+    
+    getmode(...)
+        Get numbering mode used for channel numbers.
+        Returns BOARD, BCM or UNKNOWN
+    
+    gpio_function(...)
+        Return the current GPIO function (IN, OUT, PWM, SERIAL, I2C, SPI)
+        channel - either board pin number or BCM number depending on which mode is set.
+    
+    input(...)
+        Input from a GPIO channel.  Returns HIGH=1=True or LOW=0=False
+        channel - either board pin number or BCM number depending on which mode is set.
+    
+    output(...)
+        Output to a GPIO channel or list of channels
+        channel - either board pin number or BCM number depending on which mode is set.
+        value   - 0/1 or False/True or LOW/HIGH
+    
+    remove_event_detect(...)
+      callback     - a callback function
+    
+    add_event_detect(...)
+        Enable edge detection events for a particular GPIO channel.
+        channel      - either board pin number or BCM number depending on which mode is set.
+        edge         - RISING, FALLING or BOTH
+        [callback]   - A callback function for the event (optional)
+        [bouncetime] - Switch bounce timeout in ms for callback
+    
+    cleanup(...)
+        Clean up by resetting all GPIO channels that have been used by this program to INPUT with no pullup/pulldown and no event detection
+        [channel] - individual channel or list/tuple of channels to clean up.  Default - clean every channel that has been used.
+    
+    event_detected(...)
+        Returns True if an edge has occured on a given GPIO.  You need to enable edge detection using add_event_detect() first.
+        channel - either board pin number or BCM number depending on which mode is set.
+    
+    getmode(...)
+        Get numbering mode used for channel numbers.
+        Returns BOARD, BCM or UNKNOWN
+    
+    gpio_function(...)
+        Return the current GPIO function (IN, OUT, PWM, SERIAL, I2C, SPI)
+        channel - either board pin number or BCM number depending on which mode is set.
+    
+    input(...)
+        Input from a GPIO channel.  Returns HIGH=1=True or LOW=0=False
+        channel - either board pin number or BCM number depending on which mode is set.
+    
+    output(...)
+        Output to a GPIO channel or list of channels
+        channel - either board pin number or BCM number depending on which mode is set.
+        value   - 0/1 or False/True or LOW/HIGH
+    
+    remove_event_detect(...)
+    
+    setup(...)
+        Set up a GPIO channel or list of channels with a direction and (optional) pull/up down control
+        channel        - either board pin number or BCM number depending on which mode is set.
+        direction      - IN or OUT
+        [pull_up_down] - PUD_OFF (default), PUD_UP or PUD_DOWN
+        [initial]      - Initial value for an output channel
+    
+    setwarnings(...)
+        Enable or disable warning messages
+    
+    wait_for_edge(...)
+        Wait for an edge.
+        channel      - either board pin number or BCM number depending on which mode is set.
+        edge         - RISING, FALLING or BOTH
+        [bouncetime] - time allowed between calls to allow for switchbounce
+
+DATA
+    BCM = 11
+    BOARD = 10
+    BOTH = 33
+    FALLING = 32
+    HARD_PWM = 43
+    HIGH = 1
+    I2C = 42
+    IN = 1
+    LOW = 0
+    OUT = 0
+:
+

@@ -1,0 +1,211 @@
+#!/usr/bin/python
+import spidev  # used for the SPI interface of MCP3008
+import time
+import os
+import math
+from threading import Thread as thread
+
+# Open SPI bus
+spi = spidev.SpiDev()
+spi.open(0, 0)
+
+
+def Read_Channel(channel):
+    """
+    this function is a really quick check
+    to make sure the ADC is working correctly.
+    The MCP3008 is a 10-bit ADC so our analog inputs
+    should be read out in a range from 0 to 1023
+    """
+    adc = spi.xfer2([1, (8 + channel) << 4, 0])
+    data = ((adc[1] & 3) << 8) + adc[2]
+    return data
+
+
+class Instrumentation_Data(object):
+    """
+    this class needs to run when the RPi boots up and
+    constantly keep reading data from our instrumentation and
+    calculating the wind speed, water speed, and wind direction.
+    We read the inputs from the ADC and we write to the
+    relevant text files with the data we have calculated from the readings
+    """
+
+    def __init__(self):
+        """
+        this __init__ function initializes all of the variables
+        we want to keep track of in our class.
+        We also use threading to decrease the processing power
+        requirements of our script. We thread the readings from the ADC and
+        the calculations for wind direction, wind speed, and water speed.
+        """
+        # in the MCP3008, we connect Pin 1 to the green wire from the wind
+        # sensor, which measures direction
+        self.wind_direction_channel = 0
+        # we connect Pin 2 to the black wire from the wind sensor, which
+        # measures wind speed
+        self.wind_speed_channel = 1
+        # we connect Pin 3 to the green wire from the water speed sensor, which
+        # measures water speed
+        self.water_speed_channel = 2
+
+        # these are really the three outputs we want from this class: the wind
+        # direction in degrees, wind speed, and water speed, in knots
+        self.wind_direction = None
+        self.wind_speed_knots = None
+        self.water_speed_knots = None
+
+        # degines and starts all our threads, decreasing processing power
+        # needed from RPi
+        wd_thread = thread(target=self.Convert_Degrees_Wind_Direction)
+        ws_thread = thread(target=self.SensorFrequencyWind)
+        was_thread = thread(target=self.SensorFrequencyWater)
+
+        # this makes sure that when we stop running our script, our threads
+        # also stop running
+        wd_thread.isDaemon()
+        ws_thread.isDaemon()
+        was_thread.isDaemon()
+
+        wd_thread.start()  # starts our threads
+        ws_thread.start()
+        was_thread.start()
+
+        #used for debugging purposes, uncomment these and the if statements below 
+        #to see the calculated values from the instrumentation
+        # self.t0 = time.time()
+        # self.t1 = time.time()
+        # self.t2 = time.time()
+
+        while True:
+            # this gives the RPi some time to start processing and ensures that
+            # our threads stay running even after __init__ function ended
+            time.sleep(30)
+            pass
+
+    def Read_Channel(self, channel):
+        """
+        this funtion reads the data coming out of the ADC.
+        The channel input is whatever pin the analog input is 
+        connected to. Ex. Pin 1 of MCP3008 is Channel 0 for
+        this function. The output, since this is a 10-bit ADC,
+        is in a range from 0 to 1023
+        """
+        adc = spi.xfer2([1, (8 + channel) << 4, 0])
+        data = ((adc[1] & 3) << 8) + adc[2]
+        return data
+
+    def Convert_Degrees_Wind_Direction(self):
+        """
+        so this function specifically finds the wind direction
+        it takes the data that has been read from the ADC and converts it
+        from a range of 0 to 1023 to a range of 0 to 360. 
+        Future iterations should then take that value in degrees 
+        and correspond to the 8 points on a compass and make approximations
+        about the direction of the wind
+        """
+        in_min = 0
+        in_max = 1023
+        out_min = 0
+        out_max = 360
+
+        while True:
+            x = self.Read_Channel(self.wind_direction_channel)
+            # this math converts our ranges, taken from Arduino's map function
+            self.wind_direction = ((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
+            # writes the wind direction a .txt file for text to speech
+            # conversion
+            with open('/home/pi/summer2015/Data/WindDirection.txt', 'w') as g:
+                g.write(
+                    'Wind Direction: ' + str(self.wind_direction) + ' degrees')
+            # if time.time() - self.t0 > 1: #for debugging, uncomment this and it will print out the wind direction every 1 second that is being calculated
+                # print self.wind_direction
+                #self.t0 = time.time()
+            time.sleep(0.1)
+
+    def Digital_Converter_Speed(self, channel):
+        """
+        this function was originally written for the wind speed calculation but
+        ends up working for both the water speed sensor and the wind speed sensor.
+        So these two sensors have digital analog outputs, 
+        ie they oscillate from high to low as they spin. 
+        We read the output of the ADC and we decide what to define as high or low.
+        In the ADC's range from 0 to 1023, we treat any reading below 100 as
+        low and everything else as high
+        """
+        if self.Read_Channel(channel) < 100:
+            return 0
+        else:
+            return 1
+        time.sleep(0.1)
+
+    def SensorFrequencyWind(self):
+        """
+        this function is specifically for calculating the wind speed.
+        We initially assume that the last signal was a 1 or high,
+        and we check to see if the current signal is low. If it is,
+        we set the last signal as low and check to see when we go high again.
+        We also increment a counter to keep track of our changes
+        from low to high or high to low. Starting high, having gone low,
+        and then high again, our counter reads 2, and we have gone through
+        1 period. Dividing that counter by sample length gives us frequency
+        and from there, we can calculate angular speed and speed in knots/MPH/etc.
+        """
+        while True:
+            freqWindSensor = 0
+            sample = 1
+            start = time.time()
+            now = start
+            last_sig = 1
+            while start + sample > now:
+                if last_sig != self.Digital_Converter_Speed(self.wind_speed_channel):
+                    last_sig = 1 - last_sig
+                    freqWindSensor += 1
+                    now = time.time()
+                else:
+                    now = time.time()
+            ang_wind_speed = (freqWindSensor / float(2 * sample)) * 2 * math.pi
+            metric_wind_speed = ang_wind_speed * 7.75 / 100.0
+            wind_speed_MPH = metric_wind_speed * 2.237
+            self.wind_speed_knots = metric_wind_speed * 1.944
+            self.wind_speed_knots = "%.2f" % self.wind_speed_knots
+            with open('/home/pi/summer2015/Data/WindSpeed.txt', 'w') as f:
+                f.write('Wind Speed: ' + self.wind_speed_knots + ' knots')
+            # if time.time() - self.t1 > 1: #for debugging, uncomment this and it will print out the wind speed every 1 second that is being calculated
+                # print self.wind_speed_knots
+                # self.t1 = time.time()
+
+    def SensorFrequencyWater(self):
+        """
+        this function is specificaly for calculating the water speed.
+        It works in exactly the same way as the SensorFrequencyWind()
+        function except for the math that calculates the water speed
+        because the two sensors are different in their design
+        and the amount of cycles of high and low they go through
+        """
+        while True:
+            freqWaterSensor = 0
+            sample = 1
+            start = time.time()
+            now = start
+            last_sig = 1
+            while start + sample > now:
+                if last_sig != self.Digital_Converter_Speed(self.water_speed_channel):
+                    last_sig = 1 - last_sig
+                    freqWaterSensor += 1
+                    now = time.time()
+                else:
+                    now = time.time()
+            ang_water_speed = (
+                freqWaterSensor / float(2 * sample * 3)) * 2 * math.pi
+            metric_water_speed = ang_water_speed * 2 / 100.0
+            water_speed_MPH = metric_water_speed * 2.237
+            self.water_speed_knots = metric_water_speed * 1.944
+            self.water_speed_knots = "%.2f" % self.water_speed_knots
+            with open('/home/pi/summer2015/Data/WaterSpeed.txt', 'w') as f:
+                f.write('Water Speed: ' + self.water_speed_knots + ' knots')
+            # if time.time() - self.t2 > 1: #for debugging, uncomment this and it will print out the water speed every 1 second that is being calculated
+                # print self.water_speed_knots
+                #self.t2 = time.time()
+
+Instrumentation_Data()

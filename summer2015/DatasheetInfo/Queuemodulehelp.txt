@@ -1,0 +1,390 @@
+Help on module Queue:
+
+NAME
+    Queue - A multi-producer, multi-consumer queue.
+
+FILE
+    /usr/lib/python2.7/Queue.py
+
+MODULE DOCS
+    http://docs.python.org/library/Queue
+
+CLASSES
+    Queue
+        LifoQueue
+        PriorityQueue
+    exceptions.Exception(exceptions.BaseException)
+        Empty
+        Full
+    
+    class Empty(exceptions.Exception)
+     |  Exception raised by Queue.get(block=0)/get_nowait().
+     |  
+     |  Method resolution order:
+     |      Empty
+     |      exceptions.Exception
+     |      exceptions.BaseException
+     |      __builtin__.object
+     |  
+     |  Data descriptors defined here:
+     |  
+     |  __weakref__
+     |      list of weak references to the object (if defined)
+     |  
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from exceptions.Exception:
+     |  
+     |  __init__(...)
+     |      x.__init__(...) initializes x; see help(type(x)) for signature
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes inherited from exceptions.Exception:
+     |  
+     |  __new__ = <built-in method __new__ of type object>
+     |      T.__new__(S, ...) -> a new object with type S, a subtype of T
+     |  
+:
+     |  
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from exceptions.BaseException:
+     |  
+     |  __delattr__(...)
+     |      x.__delattr__('name') <==> del x.name
+     |  
+     |  __getattribute__(...)
+     |      x.__getattribute__('name') <==> x.name
+     |  
+     |  __getitem__(...)
+     |      x.__getitem__(y) <==> x[y]
+     |  
+     |  __getslice__(...)
+     |      x.__getslice__(i, j) <==> x[i:j]
+     |      
+     |      Use of negative indices is not supported.
+     |  
+     |  __reduce__(...)
+     |  
+     |  __repr__(...)
+     |      x.__repr__() <==> repr(x)
+     |  
+     |  __setattr__(...)
+     |      x.__setattr__('name', value) <==> x.name = value
+     |  
+     |  __setstate__(...)
+     |  
+     |  __str__(...)
+     |      x.__str__() <==> str(x)
+     |  
+     |  __unicode__(...)
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from exceptions.BaseException:
+     |  
+     |  __dict__
+     |  
+     |  args
+     |  
+     |  message
+:
+    
+    class Full(exceptions.Exception)
+     |  Exception raised by Queue.put(block=0)/put_nowait().
+     |  
+     |  Method resolution order:
+     |      Full
+     |      exceptions.Exception
+     |      exceptions.BaseException
+     |      __builtin__.object
+     |  
+     |  Data descriptors defined here:
+     |  
+     |  __weakref__
+     |      list of weak references to the object (if defined)
+     |  
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from exceptions.Exception:
+     |  
+     |  __init__(...)
+     |      x.__init__(...) initializes x; see help(type(x)) for signature
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes inherited from exceptions.Exception:
+     |  
+     |  __new__ = <built-in method __new__ of type object>
+     |      T.__new__(S, ...) -> a new object with type S, a subtype of T
+     |  
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from exceptions.BaseException:
+     |  
+     |  __delattr__(...)
+     |      x.__delattr__('name') <==> del x.name
+     |  
+     |  __getattribute__(...)
+     |      x.__getattribute__('name') <==> x.name
+     |  
+     |  __getitem__(...)
+     |      x.__getitem__(y) <==> x[y]
+     |  
+     |  __getslice__(...)
+:
+     |      x.__getslice__(i, j) <==> x[i:j]
+     |      
+     |      Use of negative indices is not supported.
+     |  
+     |  __reduce__(...)
+     |  
+     |  __repr__(...)
+     |      x.__repr__() <==> repr(x)
+     |  
+     |  __setattr__(...)
+     |      x.__setattr__('name', value) <==> x.name = value
+     |  
+     |  __setstate__(...)
+     |  
+     |  __str__(...)
+     |      x.__str__() <==> str(x)
+     |  
+     |  __unicode__(...)
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from exceptions.BaseException:
+     |  
+     |  __dict__
+     |  
+     |  args
+     |  
+     |  message
+    
+    class LifoQueue(Queue)
+     |  Variant of Queue that retrieves most recently added entries first.
+     |  
+     |  Methods inherited from Queue:
+     |  
+     |  __init__(self, maxsize=0)
+     |  
+     |  empty(self)
+     |      Return True if the queue is empty, False otherwise (not reliable!).
+     |  
+     |  full(self)
+     |      Return True if the queue is full, False otherwise (not reliable!).
+:
+    |  
+     |  get(self, block=True, timeout=None)
+     |      Remove and return an item from the queue.
+     |      
+     |      If optional args 'block' is true and 'timeout' is None (the default),
+     |      block if necessary until an item is available. If 'timeout' is
+     |      a positive number, it blocks at most 'timeout' seconds and raises
+     |      the Empty exception if no item was available within that time.
+     |      Otherwise ('block' is false), return an item if one is immediately
+     |      available, else raise the Empty exception ('timeout' is ignored
+     |      in that case).
+     |  
+     |  get_nowait(self)
+     |      Remove and return an item from the queue without blocking.
+     |      
+     |      Only get an item if one is immediately available. Otherwise
+     |      raise the Empty exception.
+     |  
+     |  join(self)
+     |      Blocks until all items in the Queue have been gotten and processed.
+     |      
+     |      The count of unfinished tasks goes up whenever an item is added to the
+     |      queue. The count goes down whenever a consumer thread calls task_done()
+     |      to indicate the item was retrieved and all work on it is complete.
+     |      
+     |      When the count of unfinished tasks drops to zero, join() unblocks.
+     |  
+     |  put(self, item, block=True, timeout=None)
+     |      Put an item into the queue.
+     |      
+     |      If optional args 'block' is true and 'timeout' is None (the default),
+     |      block if necessary until a free slot is available. If 'timeout' is
+     |      a positive number, it blocks at most 'timeout' seconds and raises
+     |      the Full exception if no free slot was available within that time.
+     |      Otherwise ('block' is false), put an item on the queue if a free slot
+     |      is immediately available, else raise the Full exception ('timeout'
+     |      is ignored in that case).
+     |  
+     |  put_nowait(self, item)
+     |      Put an item into the queue without blocking.
+     |      
+     |      Only enqueue the item if a free slot is immediately available.
+     |      Otherwise raise the Full exception.
+     |  
+     |  qsize(self)
+:     |      Return the approximate size of the queue (not reliable!).
+     |  
+     |  task_done(self)
+     |      Indicate that a formerly enqueued task is complete.
+     |      
+     |      Used by Queue consumer threads.  For each get() used to fetch a task,
+     |      a subsequent call to task_done() tells the queue that the processing
+     |      on the task is complete.
+     |      
+     |      If a join() is currently blocking, it will resume when all items
+     |      have been processed (meaning that a task_done() call was received
+     |      for every item that had been put() into the queue).
+     |      
+     |      Raises a ValueError if called more times than there were items
+     |      placed in the queue.
+    
+    class PriorityQueue(Queue)
+     |  Variant of Queue that retrieves open entries in priority order (lowest first).
+     |  
+     |  Entries are typically tuples of the form:  (priority number, data).
+     |  
+     |  Methods inherited from Queue:
+     |  
+     |  __init__(self, maxsize=0)
+     |  
+     |  empty(self)
+     |      Return True if the queue is empty, False otherwise (not reliable!).
+     |  
+     |  full(self)
+     |      Return True if the queue is full, False otherwise (not reliable!).
+     |  
+     |  get(self, block=True, timeout=None)
+     |      Remove and return an item from the queue.
+     |      
+     |      If optional args 'block' is true and 'timeout' is None (the default),
+:
+     |      block if necessary until an item is available. If 'timeout' is
+     |      a positive number, it blocks at most 'timeout' seconds and raises
+     |      the Empty exception if no item was available within that time.
+     |      Otherwise ('block' is false), return an item if one is immediately
+     |      available, else raise the Empty exception ('timeout' is ignored
+     |      in that case).
+     |  
+     |  get_nowait(self)
+     |      Remove and return an item from the queue without blocking.
+     |      
+     |      Only get an item if one is immediately available. Otherwise
+     |      raise the Empty exception.
+     |  
+     |  join(self)
+     |      Blocks until all items in the Queue have been gotten and processed.
+     |      
+     |      The count of unfinished tasks goes up whenever an item is added to the
+     |      queue. The count goes down whenever a consumer thread calls task_done()
+     |      to indicate the item was retrieved and all work on it is complete.
+     |      
+     |      When the count of unfinished tasks drops to zero, join() unblocks.
+     |  
+     |  put(self, item, block=True, timeout=None)
+     |      Put an item into the queue.
+     |      
+     |      If optional args 'block' is true and 'timeout' is None (the default),
+     |      block if necessary until a free slot is available. If 'timeout' is
+     |      a positive number, it blocks at most 'timeout' seconds and raises
+     |      the Full exception if no free slot was available within that time.
+     |      Otherwise ('block' is false), put an item on the queue if a free slot
+     |      is immediately available, else raise the Full exception ('timeout'
+     |      is ignored in that case).
+     |  
+     |  put_nowait(self, item)
+     |      Put an item into the queue without blocking.
+     |      
+     |      Only enqueue the item if a free slot is immediately available.
+     |      Otherwise raise the Full exception.
+     |  
+     |  qsize(self)
+:    |      Return the approximate size of the queue (not reliable!).
+     |  
+     |  task_done(self)
+     |      Indicate that a formerly enqueued task is complete.
+     |      
+     |      Used by Queue consumer threads.  For each get() used to fetch a task,
+     |      a subsequent call to task_done() tells the queue that the processing
+     |      on the task is complete.
+     |      
+     |      If a join() is currently blocking, it will resume when all items
+     |      have been processed (meaning that a task_done() call was received
+     |      for every item that had been put() into the queue).
+     |      
+     |      Raises a ValueError if called more times than there were items
+     |      placed in the queue.
+    
+    class Queue
+     |  Create a queue object with a given maximum size.
+     |  
+     |  If maxsize is <= 0, the queue size is infinite.
+     |  
+     |  Methods defined here:
+     |  
+     |  __init__(self, maxsize=0)
+     |  
+     |  empty(self)
+     |      Return True if the queue is empty, False otherwise (not reliable!).
+     |  
+     |  full(self)
+     |      Return True if the queue is full, False otherwise (not reliable!).
+     |  
+     |  get(self, block=True, timeout=None)
+     |      Remove and return an item from the queue.
+     |      
+     |      If optional args 'block' is true and 'timeout' is None (the default),
+     |      block if necessary until an item is available. If 'timeout' is
+     |      a positive number, it blocks at most 'timeout' seconds and raises
+     |      the Empty exception if no item was available within that time.
+     |      Otherwise ('block' is false), return an item if one is immediately
+     |      available, else raise the Empty exception ('timeout' is ignored
+:
+     |      in that case).
+     |  
+     |  get_nowait(self)
+     |      Remove and return an item from the queue without blocking.
+     |      
+     |      Only get an item if one is immediately available. Otherwise
+     |      raise the Empty exception.
+     |  
+     |  join(self)
+     |      Blocks until all items in the Queue have been gotten and processed.
+     |      
+     |      The count of unfinished tasks goes up whenever an item is added to the
+     |      queue. The count goes down whenever a consumer thread calls task_done()
+     |      to indicate the item was retrieved and all work on it is complete.
+     |      
+     |      When the count of unfinished tasks drops to zero, join() unblocks.
+     |  
+     |  put(self, item, block=True, timeout=None)
+     |      Put an item into the queue.
+     |      
+     |      If optional args 'block' is true and 'timeout' is None (the default),
+     |      block if necessary until a free slot is available. If 'timeout' is
+     |      a positive number, it blocks at most 'timeout' seconds and raises
+     |      the Full exception if no free slot was available within that time.
+     |      Otherwise ('block' is false), put an item on the queue if a free slot
+     |      is immediately available, else raise the Full exception ('timeout'
+     |      is ignored in that case).
+     |  
+     |  put_nowait(self, item)
+     |      Put an item into the queue without blocking.
+     |      
+     |      Only enqueue the item if a free slot is immediately available.
+     |      Otherwise raise the Full exception.
+     |  
+     |  qsize(self)
+     |      Return the approximate size of the queue (not reliable!).
+     |  
+     |  task_done(self)
+     |      Indicate that a formerly enqueued task is complete.
+     |      
+     |      Used by Queue consumer threads.  For each get() used to fetch a task,
+     |      a subsequent call to task_done() tells the queue that the processing
+     |      on the task is complete.
+     |      
+     |      If a join() is currently blocking, it will resume when all items
+     |      have been processed (meaning that a task_done() call was received
+     |      for every item that had been put() into the queue).
+     |      
+     |      Raises a ValueError if called more times than there were items
+     |      placed in the queue.
+
+DATA
+    __all__ = ['Empty', 'Full', 'Queue', 'PriorityQueue', 'LifoQueue']
+
+(END)
+
+
+
